@@ -8,6 +8,7 @@
 #include "nrf_drv_clock.h"
 #include "nrf_pwr_mgmt.h"
 #include "app_timer.h"
+#include "app_error.h"
 #include "nrf_delay.h"
 #include "data_log.h"
 #include "dls_ctrl.h"
@@ -26,10 +27,10 @@ static void off_handler(void *p);
 int main(void)
 {
     NRF_POWER->DCDCEN = 1;                    /* buck mode */
-    nrf_drv_clock_init();
+    APP_ERROR_CHECK(nrf_drv_clock_init());
     nrf_drv_clock_lfclk_request(NULL);
-    nrf_pwr_mgmt_init();
-    app_timer_init();
+    APP_ERROR_CHECK(nrf_pwr_mgmt_init());
+    APP_ERROR_CHECK(app_timer_init());
 
     afe_ctrl_init();      /* GPIO + SAADC setup, powered‑off */
     twi_bus_init();       /* shared helper inside mem_fram */
@@ -39,9 +40,9 @@ int main(void)
     ble_stack_init();     /* SoftDevice + GAP/GATT */
     dls_ctrl_init();      /* Data‑Log Service */
 
-    app_timer_create(&periodic_timer, APP_TIMER_MODE_REPEATED, periodic_handler);
-    app_timer_create(&off_timer,      APP_TIMER_MODE_SINGLE_SHOT, off_handler);
-    app_timer_start(periodic_timer, APP_TIMER_TICKS(PERIOD_MS), NULL);
+    APP_ERROR_CHECK(app_timer_create(&periodic_timer, APP_TIMER_MODE_REPEATED, periodic_handler));
+    APP_ERROR_CHECK(app_timer_create(&off_timer,      APP_TIMER_MODE_SINGLE_SHOT, off_handler));
+    APP_ERROR_CHECK(app_timer_start(periodic_timer, APP_TIMER_TICKS(PERIOD_MS), NULL));
 
     while (true)
     {

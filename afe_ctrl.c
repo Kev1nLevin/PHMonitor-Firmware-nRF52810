@@ -20,11 +20,11 @@ void afe_ctrl_init(void)
 
     afe_power_off();
 
-    nrf_drv_saadc_init(NULL, saadc_cb);
+    APP_ERROR_CHECK(nrf_drv_saadc_init(NULL, saadc_cb));
     nrf_saadc_channel_config_t ch = NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(ADC_CHANNEL);
     ch.gain = NRF_SAADC_GAIN1_6;
     ch.reference = NRF_SAADC_REFERENCE_INTERNAL;
-    nrf_drv_saadc_channel_init(0, &ch);
+    APP_ERROR_CHECK(nrf_drv_saadc_channel_init(0, &ch));
 }
 
 void afe_power_on(void)

@@ -19,7 +19,7 @@ void twi_bus_init(void)
         .interrupt_priority = APP_IRQ_PRIORITY_LOW,
         .clear_bus_init = false
     };
-    nrf_drv_twi_init(&m_twi, &cfg, NULL, NULL);
+    APP_ERROR_CHECK(nrf_drv_twi_init(&m_twi, &cfg, NULL, NULL));
     nrf_drv_twi_enable(&m_twi);
 }
 
@@ -27,8 +27,11 @@ void fram_init(void){}
 
 static void twi_disable(void){ NRF_TWI0->ENABLE = 0; }
 
+static void twi_enable(void){ nrf_drv_twi_enable(&m_twi); }
+
 void fram_write(uint16_t addr, uint8_t const *p, uint16_t len)
 {
+    twi_enable();
     while(len)
     {
         uint8_t chunk = PAGE_SIZE - (addr & (PAGE_SIZE-1));
@@ -37,7 +40,7 @@ void fram_write(uint16_t addr, uint8_t const *p, uint16_t len)
         buf[0] = addr >> 8;
         buf[1] = addr & 0xFF;
         memcpy(&buf[2], p, chunk);
-        nrf_drv_twi_tx(&m_twi, FRAM_ADDR, buf, chunk+2, false);
+        APP_ERROR_CHECK(nrf_drv_twi_tx(&m_twi, FRAM_ADDR, buf, chunk+2, false));
         addr += chunk; p += chunk; len -= chunk;
     }
     twi_disable();
@@ -45,8 +48,9 @@ void fram_write(uint16_t addr, uint8_t const *p, uint16_t len)
 
 void fram_read(uint16_t addr, uint8_t *p, uint16_t len)
 {
+    twi_enable();
     uint8_t a[2] = { addr>>8, addr & 0xFF };
-    nrf_drv_twi_tx(&m_twi, FRAM_ADDR, a, 2, true);
-    nrf_drv_twi_rx(&m_twi, FRAM_ADDR, p, len);
+    APP_ERROR_CHECK(nrf_drv_twi_tx(&m_twi, FRAM_ADDR, a, 2, true));
+    APP_ERROR_CHECK(nrf_drv_twi_rx(&m_twi, FRAM_ADDR, p, len));
     twi_disable();
 }
