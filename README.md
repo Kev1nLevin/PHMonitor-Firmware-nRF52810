@@ -45,3 +45,13 @@ This application is meant as a starting point for very low power data‑logging
 projects using the nRF52810.  Integration with your own sensor hardware may
 require adapting the GPIO assignments and ADC scaling.
 
+
+## Module Details
+
+- `main.c` sets up all hardware and runs the main event loop. It starts the periodic timer that triggers sampling.
+- `afe_ctrl.c` powers the analog front end and performs single SAADC conversions.
+- `mem_fram.c` provides helper functions for accessing the external FRAM over I2C; the bus is disabled after each transfer.
+- `data_log.c` keeps track of the write pointer and sample count in FRAM.
+- `ble_dls.c` and `dls_ctrl.c` implement the Data-Log BLE service, handling commands and sending logged data.
+
+A connected host can issue dump and erase commands via the BLE service to retrieve or clear measurements.
